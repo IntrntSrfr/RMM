@@ -3,6 +3,9 @@ package handler
 import (
 	"net/http"
 
+	"github.com/intrntsrfr/rmm-api/service/discord"
+	"golang.org/x/oauth2"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,11 +21,18 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func NewHandler() *gin.Engine {
+type Config struct {
+	Discord     *discord.DiscordService
+	OauthConfig *oauth2.Config
+}
+
+func NewHandler(conf *Config) *gin.Engine {
 	r := gin.Default()
 	r.Use(Cors())
 
-	NewAuthHandler(r)
+	NewAuthHandler(r, conf.OauthConfig)
+	NewGuildHandler(r, conf.Discord)
+
 	r.GET("/api/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})

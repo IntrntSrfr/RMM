@@ -10,14 +10,15 @@ import (
 )
 
 type AuthHandler struct {
-	r *gin.Engine
+	r           *gin.Engine
+	oauthConfig *oauth2.Config
 }
 
-func NewAuthHandler(r *gin.Engine) {
-	ah := &AuthHandler{r}
+func NewAuthHandler(r *gin.Engine, o *oauth2.Config) {
+	h := &AuthHandler{r, o}
 
-	g := ah.r.Group("/api/auth")
-	g.GET("/callback", ah.callback())
+	g := h.r.Group("/api/auth")
+	g.GET("/callback", h.callback())
 }
 
 func (h *AuthHandler) callback() gin.HandlerFunc {
@@ -31,17 +32,7 @@ func (h *AuthHandler) callback() gin.HandlerFunc {
 			return
 		}
 
-		conf := &oauth2.Config{
-			ClientID:     "394162399348785152",
-			ClientSecret: "OamPZi012BJ8BBSP7AM1PgDwfb8s9CTB",
-			Scopes:       []string{},
-			Endpoint: oauth2.Endpoint{
-				TokenURL: "https://discord.com/api/oauth2/token",
-			},
-			RedirectURL: "http://localhost:3000/callback",
-		}
-
-		token, err := conf.Exchange(context.Background(), code)
+		token, err := h.oauthConfig.Exchange(context.Background(), code)
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, ErrorResponse{
