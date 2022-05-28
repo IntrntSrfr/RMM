@@ -18,4 +18,8 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.guild {
+  padding: 1em;
+}
+</style>

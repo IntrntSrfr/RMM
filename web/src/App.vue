@@ -8,7 +8,7 @@
 @import "@/assets/base.css";
 
 #app {
-  max-width: 1280px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 2rem;
 

@@ -42,14 +42,22 @@ export const useUserStore = defineStore("user", {
       user: null,
       guilds: [],
     } as UserState),
-  getters: {},
+  getters: {
+    getGuildByID: (state) => {
+      return (guildID: string) =>
+        state.guilds.find((guild) => guild.id === guildID);
+    },
+  },
   actions: {
     async fetchGuilds() {
       try {
         const token = this.token?.access_token;
-        const res = await axios.get("https://discord.com/api/users/@me", {
-          headers: { Authorization: "Bearer " + token },
-        });
+        const res = await axios.get(
+          "https://discord.com/api/users/@me/guilds",
+          {
+            headers: { Authorization: "Bearer " + token },
+          }
+        );
         this.guilds = res.data;
       } catch (error) {
         console.log(error);

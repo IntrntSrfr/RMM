@@ -12,8 +12,7 @@ import (
 type Code int
 
 const (
-	CodeOK Code = 1 << iota
-	CodeError
+	CodeError Code = 1 << iota
 )
 
 type ErrorResponse struct {
