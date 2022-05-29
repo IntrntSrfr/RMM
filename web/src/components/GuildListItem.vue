@@ -22,4 +22,11 @@ export default defineComponent({
 .guild {
   padding: 1em;
 }
+
+@media only screen and (min-width: 660px) {
+  .guild {
+    border: 1px solid dodgerblue;
+    border-radius: 5px;
+  }
+}
 </style>

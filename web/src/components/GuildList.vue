@@ -44,12 +44,23 @@ export default defineComponent({
   grid-template-columns: 1fr;
 }
 
-.list-item{
+.list-item {
   text-decoration: none;
   color: inherit;
 }
 
 .list-item + .list-item {
   border-top: 1px solid dodgerblue;
+}
+
+@media only screen and (min-width: 660px) {
+  .guild-list {
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+  }
+
+  .list-item + .list-item {
+    border-top: none;
+  }
 }
 </style>

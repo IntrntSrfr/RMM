@@ -8,6 +8,11 @@ export type UserState = {
   guilds: Guild[];
 };
 
+export type Member = {
+  user: User;
+  joinedAt: Date;
+};
+
 export type User = {
   id: string;
   username: string;
@@ -29,19 +34,25 @@ export type Guild = {
   id: string;
   name: string;
   icon: string;
-  owner: true;
+  owner: boolean;
   permissions: number;
-  features: string[];
 };
 
 export const useUserStore = defineStore("user", {
-  state: () =>
-    ({
-      token: null,
-      loggedIn: false,
+  state: () => {
+    const t = localStorage.getItem("token");
+    let tObj = null;
+    if (t) {
+      // IMPORTANT: CHECK EXPIRY DATE :DDD
+      tObj = JSON.parse(t);
+    }
+    return {
+      token: tObj,
+      loggedIn: !!tObj,
       user: null,
       guilds: [],
-    } as UserState),
+    } as UserState;
+  },
   getters: {
     getGuildByID: (state) => {
       return (guildID: string) =>
@@ -52,7 +63,7 @@ export const useUserStore = defineStore("user", {
     async fetchGuilds() {
       try {
         const token = this.token?.access_token;
-        const res = await axios.get(
+        const res = await axios.get<Guild[]>(
           "https://discord.com/api/users/@me/guilds",
           {
             headers: { Authorization: "Bearer " + token },
@@ -66,10 +77,7 @@ export const useUserStore = defineStore("user", {
     async fetchUser() {
       try {
         const token = this.token?.access_token;
-        console.log(this.token);
-        console.log(this.token?.access_token);
-
-        const res = await axios.get("https://discord.com/api/users/@me", {
+        const res = await axios.get<User>("https://discord.com/api/users/@me", {
           headers: { Authorization: "Bearer " + token },
         });
         console.log(res.data);
@@ -81,10 +89,14 @@ export const useUserStore = defineStore("user", {
     },
     async oauth(code: string) {
       try {
-        const res = await axios.get("http://localhost:4444/api/auth/callback", {
-          params: { code: code },
-        });
+        const res = await axios.get<AccessTokenResponse>(
+          "http://localhost:4444/api/auth/callback",
+          {
+            params: { code: code },
+          }
+        );
         this.token = res.data;
+        localStorage.setItem("token", JSON.stringify(res.data));
       } catch (e) {
         console.log(e);
       }

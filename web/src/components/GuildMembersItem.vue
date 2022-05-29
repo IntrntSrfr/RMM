@@ -1,13 +1,13 @@
 <template>
-
+  <div>ASD</div>
 </template>
 
 <script>
-export default {
-  name: "GuildMembersItem"
-};
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "GuildMembersItem",
+});
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

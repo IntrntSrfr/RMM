@@ -7,17 +7,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "../stores/user";
 import GuildList from "./GuildList.vue";
 
 export default defineComponent({
   name: "TheDashboard",
   components: { GuildList },
-  setup() {
-    const userStore = useUserStore;
-
-    return {};
-  },
 });
 </script>
 
