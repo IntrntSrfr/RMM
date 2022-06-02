@@ -1,75 +1,28 @@
 package discord
 
 import (
-	"errors"
 	"fmt"
-	"sync"
-
 	"github.com/bwmarrin/discordgo"
+	"time"
 )
 
 type DiscordService struct {
 	sessions []*discordgo.Session
 	s        *discordgo.Session
-	state    *State
+	//state    *State
 }
 
-var (
-	ErrStateNotFound = errors.New("not found in state")
-)
-
-type State struct {
-	sync.RWMutex
-	memberMap map[string][]*GuildMember
-}
-
-func NewState() *State {
-	return &State{
-		memberMap: make(map[string][]*GuildMember),
-	}
-}
-
-func (s *State) MemberList(guildID string) ([]*GuildMember, error) {
-	s.RLock()
-	defer s.RUnlock()
-	members, ok := s.memberMap[guildID]
-	if !ok {
-		return nil, ErrStateNotFound
-	}
-	return members, nil
-}
-
-func (s *State) createMemberList(guildID string) {
-	s.Lock()
-	defer s.Unlock()
-	s.memberMap[guildID] = []*GuildMember{}
-}
-
-func (s *State) memberAdd(m *GuildMember) error {
-	members, ok := s.memberMap[m.GuildID]
-	if !ok {
-		return ErrStateNotFound
-	}
-	members = append(members, m)
-	return nil
-}
-
-func (s *State) MemberAdd(m *GuildMember) error {
-	s.Lock()
-	defer s.Unlock()
-	return s.memberAdd(m)
-}
-
+/*
 type GuildMember struct {
-	GuildID string
-	Member  *discordgo.Member
+	GuildID string            `json:"guild_id"`
+	Member  *discordgo.Member `json:"member"`
 }
-
+*/
 const shardCount = 1
 
 func NewDiscordService(token string) (*DiscordService, error) {
 	d := &DiscordService{
-		state: NewState(),
+		//state: NewState(),
 	}
 	d.sessions = make([]*discordgo.Session, shardCount)
 	for i := 0; i < shardCount; i++ {
@@ -78,6 +31,8 @@ func NewDiscordService(token string) (*DiscordService, error) {
 			return nil, err
 		}
 
+		s.State.TrackVoice = false
+		s.State.TrackPresences = false
 		s.ShardCount = shardCount
 		s.ShardID = i
 		s.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAllWithoutPrivileged | discordgo.IntentsGuildMembers | discordgo.IntentMessageContent)
@@ -86,6 +41,7 @@ func NewDiscordService(token string) (*DiscordService, error) {
 		s.AddHandler(d.memberRemove)
 		s.AddHandler(d.guildCreate)
 		s.AddHandler(d.ready)
+		s.AddHandler(memberChunk)
 
 		d.sessions[i] = s
 	}
@@ -105,8 +61,49 @@ func (d *DiscordService) Close() {
 	}
 }
 
-func (d *DiscordService) RecentMembers(guildID string) ([]*GuildMember, error) {
-	return d.state.MemberList(guildID)
+func (d *DiscordService) Guild(guildID string) (*discordgo.Guild, error) {
+	for _, s := range d.sessions {
+		if g, err := s.State.Guild(guildID); err == nil {
+			return g, err
+		}
+	}
+	return nil, discordgo.ErrStateNotFound
+}
+
+/*
+func (d *DiscordService) GuildMembers(guildID string) ([]*discordgo.Member, error) {
+	g, err := d.Guild(guildID)
+	if err != nil {
+		return nil, err
+	}
+	d.s.State.Member()
+}*/
+
+func (d *DiscordService) GuildJoins(guildID string) ([]*discordgo.Member, error) {
+	g, err := d.Guild(guildID)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(len(g.Members))
+
+	newMems := []*discordgo.Member{}
+	for _, m := range g.Members {
+		if m.JoinedAt.After(time.Now().Add(-time.Hour * 24)) {
+			newMems = append(newMems, m)
+		}
+	}
+
+	/*
+		newMems := []*GuildMember{}
+		for _, m := range g.Members {
+			if m.JoinedAt.After(time.Now().Add(-1 * time.Hour * 24)) {
+				newMems = append(newMems, &GuildMember{guildID, m})
+			}
+		}
+	*/
+	fmt.Println(len(newMems))
+	return newMems, nil
 }
 
 func (d *DiscordService) ready(s *discordgo.Session, r *discordgo.Ready) {
@@ -114,18 +111,33 @@ func (d *DiscordService) ready(s *discordgo.Session, r *discordgo.Ready) {
 }
 
 func (d *DiscordService) guildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
-	fmt.Println("new guild", g.Name)
-	d.state.createMemberList(g.ID)
+	s.RequestGuildMembers(g.ID, "", 0, "", false)
+	fmt.Println("loading: ", g.Guild.Name, g.MemberCount, len(g.Members))
+	//d.state.createMemberList(g.ID)
 }
 
 func (d *DiscordService) memberAdd(s *discordgo.Session, m *discordgo.GuildMemberAdd) {
 	fmt.Println("new member joined", m.GuildID, m.User.ID)
-	_ = d.state.MemberAdd(&GuildMember{
-		GuildID: m.GuildID,
-		Member:  m.Member,
-	})
+	/*
+		_ = d.state.MemberAdd(&GuildMember{
+			GuildID: m.GuildID,
+			Member:  m.Member,
+		})
+	*/
 }
 
 func (d *DiscordService) memberRemove(s *discordgo.Session, m *discordgo.GuildMemberRemove) {
 	fmt.Println("new member left", m.GuildID, m.User.ID)
+}
+
+func memberChunk(s *discordgo.Session, g *discordgo.GuildMembersChunk) {
+	fmt.Println(g.GuildID, len(g.Members))
+	if g.ChunkIndex == g.ChunkCount-1 {
+		// I don't know if this will work with several shards
+		guild, err := s.Guild(g.GuildID)
+		if err != nil {
+			return
+		}
+		fmt.Println("finished loading "+guild.Name, len(guild.Members))
+	}
 }

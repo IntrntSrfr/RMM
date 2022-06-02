@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/intrntsrfr/rmm-api/handler"
 	"github.com/intrntsrfr/rmm-api/service/discord"
+
+	"github.com/intrntsrfr/rmm-api/handler"
 	"golang.org/x/oauth2"
 )
 
@@ -14,6 +15,7 @@ type Config struct {
 	ClientSecret string `json:"client_secret"`
 	RedirectURL  string `json:"redirect_url"`
 	DiscordToken string `json:"discord_token"`
+	JWTKey       string `json:"jwt_key"`
 }
 
 func main() {
