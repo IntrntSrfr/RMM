@@ -31,7 +31,9 @@ export default defineComponent({
   cursor: pointer;
   border: none;
   font-size: 1rem;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
   padding: 0.25em 0.5em;
   border-radius: 5px;
   transition: 0.2s;

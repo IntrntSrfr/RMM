@@ -1,28 +1,36 @@
 <template>
-  <h1>{{ currentGuild.name }}</h1>
+  <router-link to="/dashboard">&lt;- Dashboard</router-link>
+  <h1 v-if="currentGuild">{{ currentGuild.name }}</h1>
   <GuildMembers />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "@/stores/user";
 import GuildMembers from "@/components/GuildMembers.vue";
+import { useGuildStore, type Guild } from "@/stores/guilds";
 
 export default defineComponent({
   name: "TheGuild",
   components: { GuildMembers },
   setup() {
-    const userStore = useUserStore();
-    return { userStore };
+    const guildStore = useGuildStore();
+    return { guildStore };
   },
   computed: {
-    currentGuild() {
+    currentGuild(): Guild | undefined {
       const guildID = this.$route.params.guildID;
       if (!guildID) {
-        return;
+        return undefined;
       }
-      return this.userStore.getGuildByID(guildID);
+      return this.guildStore.getGuildByID(guildID.toString());
     },
+  },
+  async created() {
+    const guildID = this.$route.params.guildID;
+    if (!this.currentGuild) {
+      await this.guildStore.fetchGuilds();
+    }
+    await this.guildStore.fetchGuildMembers(guildID.toString());
   },
 });
 </script>

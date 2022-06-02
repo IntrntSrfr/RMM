@@ -1,16 +1,17 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
+import http from "@/http";
+
 export type UserState = {
   token: AccessTokenResponse | null;
   loggedIn: boolean;
   user: User | null;
-  guilds: Guild[];
 };
 
 export type Member = {
   user: User;
-  joinedAt: Date;
+  joined_at: string;
 };
 
 export type User = {
@@ -30,14 +31,6 @@ export type AccessTokenResponse = {
   scope: string;
 };
 
-export type Guild = {
-  id: string;
-  name: string;
-  icon: string;
-  owner: boolean;
-  permissions: number;
-};
-
 export const useUserStore = defineStore("user", {
   state: () => {
     const t = localStorage.getItem("token");
@@ -50,33 +43,16 @@ export const useUserStore = defineStore("user", {
       token: tObj,
       loggedIn: !!tObj,
       user: null,
-      guilds: [],
     } as UserState;
   },
-  getters: {
-    getGuildByID: (state) => {
-      return (guildID: string) =>
-        state.guilds.find((guild) => guild.id === guildID);
-    },
-  },
+  getters: {},
   actions: {
-    async fetchGuilds() {
-      try {
-        const token = this.token?.access_token;
-        const res = await axios.get<Guild[]>(
-          "https://discord.com/api/users/@me/guilds",
-          {
-            headers: { Authorization: "Bearer " + token },
-          }
-        );
-        this.guilds = res.data;
-      } catch (error) {
-        console.log(error);
-      }
-    },
     async fetchUser() {
       try {
-        const token = this.token?.access_token;
+        const token = this.token;
+        if (!token?.access_token) {
+          return;
+        }
         const res = await axios.get<User>("https://discord.com/api/users/@me", {
           headers: { Authorization: "Bearer " + token },
         });
@@ -89,12 +65,9 @@ export const useUserStore = defineStore("user", {
     },
     async oauth(code: string) {
       try {
-        const res = await axios.get<AccessTokenResponse>(
-          "http://localhost:4444/api/auth/callback",
-          {
-            params: { code: code },
-          }
-        );
+        const res = await http.get<AccessTokenResponse>("/api/auth/callback", {
+          params: { code: code },
+        });
         this.token = res.data;
         localStorage.setItem("token", JSON.stringify(res.data));
       } catch (e) {

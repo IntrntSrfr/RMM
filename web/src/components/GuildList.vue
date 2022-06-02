@@ -13,24 +13,24 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useUserStore } from "@/stores/user";
 import GuildListItem from "./GuildListItem.vue";
+import { useGuildStore } from "@/stores/guilds";
 
 export default defineComponent({
   name: "GuildList",
   components: { GuildListItem },
   setup() {
-    const userStore = useUserStore();
-    return { userStore };
+    const guildStore = useGuildStore();
+    return { guildStore };
   },
   computed: {
     guilds() {
-      return this.userStore.guilds;
+      return this.guildStore.guilds;
     },
   },
   async created() {
     try {
-      await this.userStore.fetchGuilds();
+      await this.guildStore.fetchGuilds();
     } catch (error) {
       console.log(error);
     }

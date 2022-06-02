@@ -2,7 +2,7 @@
   "name": "web",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --port 5050",
     "test:unit": "vitest --environment jsdom",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
+    "javascript-time-ago": "^2.5.4",
     "pinia": "^2.0.14",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14"

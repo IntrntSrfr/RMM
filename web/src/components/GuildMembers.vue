@@ -10,7 +10,7 @@
         <th>
           <input
             type="checkbox"
-            :checked="selectedMembers.length===members.length"
+            :checked="selectedMembers.length === members.length"
             :indeterminate="
               selectedMembers.length &&
               selectedMembers.length !== members.length
@@ -25,7 +25,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(m, i) in members" :key="i">
+      <tr v-for="(m, i) in guildMembers" :key="i">
         <td>
           <input type="checkbox" v-model="m.checked" />
         </td>
@@ -34,7 +34,7 @@
         <td>
           {{ `${m.member.user.username}#${m.member.user.discriminator}` }}
         </td>
-        <td>5h ago</td>
+        <td>{{ timeAgo.format(m.joined) }}</td>
       </tr>
     </tbody>
   </table>
@@ -43,21 +43,24 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import type { Member } from "@/stores/user";
-import { useUserStore } from "@/stores/user";
-import axios from "axios";
 import AppButton from "@/components/AppButton.vue";
+import TimeAgo from "javascript-time-ago";
+import http from "@/http";
+import { useGuildStore } from "@/stores/guilds";
 
 type TableMember = {
   member: Member;
   checked: boolean;
+  joined: Date;
 };
 
 export default defineComponent({
   name: "GuildMembers",
   components: { AppButton },
   setup() {
-    const userStore = useUserStore();
-    return { userStore };
+    const guildStore = useGuildStore();
+    const timeAgo = new TimeAgo("en-US");
+    return { guildStore, timeAgo };
   },
   data() {
     return {
@@ -68,24 +71,33 @@ export default defineComponent({
     selectedMembers(): TableMember[] {
       return this.members.filter((m: TableMember) => m.checked);
     },
+    guildMembers(): TableMember[] {
+      const guildID = this.$route.params.guildID;
+      const g = this.guildStore.getGuildByID(guildID.toString());
+      if (!g || !g.members) {
+        return [];
+      }
+
+      return g.members
+        .map((m: Member) => {
+          return {
+            member: m,
+            checked: false,
+            joined: new Date(m.joined_at),
+          } as TableMember;
+        })
+        .sort((a: TableMember, b: TableMember) => {
+          return b.joined.getTime() - a.joined.getTime();
+        });
+    },
   },
   async created() {
-
     const guildID = this.$route.params.guildID;
     if (!guildID) {
       return;
     }
 
-    try {
-      const res = await axios.get<Member[]>(
-        "http://localhost:4444/api/guilds/" + guildID + "/members"
-      );
-      this.members = res.data
-        .reverse() // we want the latest entries at the top
-        .map((m) => ({ checked: false, member: m } as TableMember));
-    } catch (error) {
-      console.log(error);
-    }
+    await this.guildStore.fetchGuildMembers(guildID.toString());
   },
 
   methods: {
@@ -102,6 +114,7 @@ export default defineComponent({
       }
 
       console.log(this.selectedMembers);
+      console.log(this.selectedMembers.map((m) => m.member.user.id));
     },
   },
 });
@@ -112,15 +125,42 @@ export default defineComponent({
   display: flex;
   gap: 1em;
 }
+
 table {
+  table-layout: fixed;
   width: 100%;
-  border: 1px solid dodgerblue;
+  border-collapse: collapse;
+  border: 1px solid #a0a0a0;
 }
+
 thead {
   text-align: left;
-  border-bottom: 1px solid dodgerblue;
+  border-bottom: 1px solid var(--color-border);
 }
-tr:nth-child(2n) {
-  background-color: #282828;
+
+thead th:nth-child(1) {
+  width: 5%;
 }
+
+thead th:nth-child(2) {
+  width: 5%;
+}
+
+thead th:nth-child(3) {
+  width: 20%;
+}
+
+thead th:nth-child(4) {
+  width: 40%;
+}
+
+thead th:nth-child(5) {
+  width: 20%;
+}
+
+th,
+td {
+  padding: 0.5em;
+}
+
 </style>
