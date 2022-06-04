@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/intrntsrfr/rmm-api/service"
 	"net/http"
 
 	"github.com/intrntsrfr/rmm-api/service/discord"
@@ -23,13 +24,14 @@ type ErrorResponse struct {
 type Config struct {
 	Discord     *discord.DiscordService
 	OauthConfig *oauth2.Config
+	JwtService  service.JWTService
 }
 
 func NewHandler(conf *Config) *gin.Engine {
 	r := gin.Default()
 	r.Use(Cors())
 
-	NewAuthHandler(r, conf.OauthConfig)
+	NewAuthHandler(r, conf.OauthConfig, conf.JwtService)
 	NewGuildHandler(r, conf.Discord)
 
 	r.GET("/api/health", func(c *gin.Context) {

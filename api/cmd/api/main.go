@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/intrntsrfr/rmm-api/service"
 	"io/ioutil"
 
 	"github.com/intrntsrfr/rmm-api/service/discord"
@@ -43,7 +44,9 @@ func main() {
 	}
 	disc.Open()
 
-	conf := &handler.Config{Discord: disc, OauthConfig: oauthConfig}
+	jwtService := service.NewJWTUtil([]byte(config.JWTKey))
+
+	conf := &handler.Config{Discord: disc, OauthConfig: oauthConfig, JwtService: jwtService}
 
 	r := handler.NewHandler(conf)
 	r.Run(":4444")

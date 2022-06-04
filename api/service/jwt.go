@@ -2,11 +2,12 @@ package service
 
 import (
 	"github.com/golang-jwt/jwt/v4"
+	"time"
 )
 
 type JWTService interface {
-	GenerateToken() (string, error)
-	ValidateToken(token string)
+	ValidateToken(token string) bool
+	GenerateToken(id string, expiry time.Time, token string, refreshToken string) (string, error)
 }
 
 type JWTUtil struct {
@@ -17,17 +18,22 @@ func NewJWTUtil(key []byte) *JWTUtil {
 	return &JWTUtil{key}
 }
 
-func (j *JWTUtil) GenerateToken() (string, error) {
+func (j *JWTUtil) GenerateToken(id string, expiry time.Time, token string, refreshToken string) (string, error) {
 	tkn := jwt.New(jwt.SigningMethodHS256)
-	tkn.Claims = jwt.RegisteredClaims{
-		Issuer: "RMM",
-		Subject: "Discord User",
-		
+	claims := jwt.MapClaims{
+		"iss": "rmm",
+		"sub": id,
+		"exp": jwt.NewNumericDate(expiry),
+		"iat": jwt.NewNumericDate(time.Now()),
+		"tkn": token,
+		"ttp": "Bearer",
+		"rsh": refreshToken,
 	}
-	return jwt.New(jwt.SigningMethodHS256).SignedString(j.key)
+	tkn.Claims = claims
+	return tkn.SignedString(j.key)
 }
 
-func (j *JWTUtil) ValidateToken(token string) {
+func (j *JWTUtil) ValidateToken(token string) bool {
 	// TODO implement me
 	panic("implement me")
 }
