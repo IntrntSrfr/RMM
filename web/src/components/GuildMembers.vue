@@ -162,5 +162,4 @@ th,
 td {
   padding: 0.5em;
 }
-
 </style>

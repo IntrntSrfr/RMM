@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "javascript-time-ago": "^2.5.4",
+    "jwt-decode": "^3.1.2",
     "pinia": "^2.0.14",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14"

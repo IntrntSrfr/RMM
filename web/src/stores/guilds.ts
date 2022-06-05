@@ -31,17 +31,14 @@ export const useGuildStore = defineStore("guild", {
   },
   actions: {
     async fetchGuilds() {
+      const token = localStorage.getItem("token");
       try {
-        const token = useUserStore().token;
-        if (!token?.access_token) {
+        if (!token) {
           return;
         }
-        const res = await axios.get<Guild[]>(
-          "https://discord.com/api/users/@me/guilds",
-          {
-            headers: { Authorization: "Bearer " + token.access_token },
-          }
-        );
+        const res = await http.get<Guild[]>("/api/guilds", {
+          headers: { Authorization: "Bearer " + token },
+        });
         this.guilds = res.data;
       } catch (error) {
         console.log(error);

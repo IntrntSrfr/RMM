@@ -2,6 +2,23 @@
   <RouterView />
 </template>
 
+<script lang="ts">
+import { defineComponent } from "vue";
+import { useUserStore } from "./stores/user";
+
+export default defineComponent({
+  setup() {
+    const userStore = useUserStore();
+
+    return { userStore };
+  },
+  async created() {
+    await this.userStore.fetchUser();
+  },
+});
+</script>
+
+
 <style>
 @import "@/assets/base.css";
 

@@ -2,9 +2,10 @@ import { defineStore } from "pinia";
 import axios from "axios";
 
 import http from "@/http";
+import jwtDecode from "jwt-decode";
 
 export type UserState = {
-  token: AccessTokenResponse | null;
+  token: JWT | null;
   loggedIn: boolean;
   user: User | null;
 };
@@ -23,6 +24,16 @@ export type User = {
   accent_color?: number;
 };
 
+export type JWT = {
+  exp: number; // expiry time
+  iat: number; // issued at
+  iss: string; // issued by
+  sub: string; // user id
+  tkn: string; // access token
+  ttp: string; // token type
+  rsh: string; // refresh token
+};
+
 export type AccessTokenResponse = {
   access_token: string;
   token_type: string;
@@ -33,15 +44,15 @@ export type AccessTokenResponse = {
 
 export const useUserStore = defineStore("user", {
   state: () => {
-    const t = localStorage.getItem("token");
-    let tObj = null;
+    const t = localStorage.getItem("token_data");
+    let tObj: JWT | null = null;
     if (t) {
       // IMPORTANT: CHECK EXPIRY DATE :DDD
       tObj = JSON.parse(t);
     }
     return {
       token: tObj,
-      loggedIn: !!tObj,
+      loggedIn: false,
       user: null,
     } as UserState;
   },
@@ -50,28 +61,34 @@ export const useUserStore = defineStore("user", {
     async fetchUser() {
       try {
         const token = this.token;
-        if (!token?.access_token) {
+        if (!token?.tkn) {
           return;
         }
         const res = await axios.get<User>("https://discord.com/api/users/@me", {
-          headers: { Authorization: "Bearer " + token },
+          headers: { Authorization: "Bearer " + token.tkn },
         });
-        console.log(res.data);
         this.loggedIn = true;
         this.user = res.data;
       } catch (error) {
-        console.log(error);
+        this.token = null;
+        this.loggedIn = false;
+        this.user = null;
       }
     },
     async oauth(code: string) {
+      type JwtResp = { token: string };
+
       try {
-        const res = await http.get<AccessTokenResponse>("/api/auth/callback", {
+        const res = await http.get<JwtResp>("/api/auth/callback", {
           params: { code: code },
         });
-        this.token = res.data;
-        localStorage.setItem("token", JSON.stringify(res.data));
+        const decoded = jwtDecode<JWT>(res.data.token);
+        this.token = decoded;
+        localStorage.setItem("id", this.token.sub);
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("token_data", JSON.stringify(this.token));
       } catch (e) {
-        console.log(e);
+        this.token = null;
       }
     },
   },
