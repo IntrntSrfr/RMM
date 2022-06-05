@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
-import axios from "axios";
 
-import { useUserStore, type Member } from "@/stores/user";
+import type { Member } from "@/stores/user";
 import http from "@/http";
 
 export type Guild = {

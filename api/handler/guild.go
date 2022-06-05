@@ -27,8 +27,11 @@ func NewGuildHandler(r *gin.Engine, d *discord.DiscordService, j *service.JWTUti
 
 func (h *GuildHandler) getGuilds() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		claims := c.GetStringMap("claims")
-		oc, _ := discordgo.New("Bearer " + claims["tkn"].(string))
+		fmt.Println("guild start")
+		claims := c.MustGet("claims").(*service.Claims)
+		fmt.Println("claims")
+		oc, _ := discordgo.New("Bearer " + claims.Token)
+		fmt.Println("new token state")
 		res, err := oc.Request("GET", discordgo.EndpointUsers+"@me/guilds", nil)
 		if err != nil {
 			fmt.Println(err)

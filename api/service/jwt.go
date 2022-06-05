@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -22,46 +23,65 @@ func NewJWTUtil(key []byte) *JWTUtil {
 	return &JWTUtil{key}
 }
 
+type Claims struct {
+	jwt.RegisteredClaims
+	Token        string `json:"token"`
+	TokenType    string `json:"token_type"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 func (j *JWTUtil) GenerateToken(id string, expiry time.Time, token string, refreshToken string) (string, error) {
 	tkn := jwt.New(jwt.SigningMethodHS256)
-	claims := jwt.MapClaims{
-		"iss": "rmm",
-		"sub": id,
-		"exp": jwt.NewNumericDate(expiry),
-		"iat": jwt.NewNumericDate(time.Now()),
-		"tkn": token,
-		"ttp": "Bearer",
-		"rsh": refreshToken,
+	claims := Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "RMM",
+			Subject:   id,
+			ExpiresAt: jwt.NewNumericDate(expiry),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+		Token:        token,
+		TokenType:    "Bearer",
+		RefreshToken: refreshToken,
 	}
+
 	tkn.Claims = claims
 	return tkn.SignedString(j.key)
 }
 
-func (j *JWTUtil) ValidateToken(tokenString string) (*jwt.Token, error) {
-	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
+func (j *JWTUtil) ValidateToken(tokenString string) (*jwt.Token, *Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return j.key, nil
 	})
+	if err != nil {
+		return nil, nil, err
+	}
+	return token, claims, nil
 }
 
 func (j *JWTUtil) JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("Authorization")
-		if token == "" {
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
+			fmt.Println("no token")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}
 
-		if token, err := j.ValidateToken(token); err != nil {
+		// remove "Bearer "
+		tokenString = tokenString[7:]
+
+		token, claims, err := j.ValidateToken(tokenString)
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println("token not valid")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
-		} else {
-			c.Set("token", token)
-			claims, _ := token.Claims.(jwt.MapClaims)
-			c.Set("claims", claims)
 		}
+
+		fmt.Println("setting token")
+		c.Set("token", token)
+		c.Set("claims", claims)
 		c.Next()
 	}
 }

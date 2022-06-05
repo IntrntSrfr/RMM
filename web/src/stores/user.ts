@@ -29,9 +29,9 @@ export type JWT = {
   iat: number; // issued at
   iss: string; // issued by
   sub: string; // user id
-  tkn: string; // access token
-  ttp: string; // token type
-  rsh: string; // refresh token
+  token: string; // access token
+  token_type: string; // token type
+  refresh_token: string; // refresh token
 };
 
 export type AccessTokenResponse = {
@@ -60,12 +60,12 @@ export const useUserStore = defineStore("user", {
   actions: {
     async fetchUser() {
       try {
-        const token = this.token;
-        if (!token?.tkn) {
+        const token = this.token?.token;
+        if (!token) {
           return;
         }
         const res = await axios.get<User>("https://discord.com/api/users/@me", {
-          headers: { Authorization: "Bearer " + token.tkn },
+          headers: { Authorization: "Bearer " + token },
         });
         this.loggedIn = true;
         this.user = res.data;
