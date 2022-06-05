@@ -24,15 +24,15 @@ type ErrorResponse struct {
 type Config struct {
 	Discord     *discord.DiscordService
 	OauthConfig *oauth2.Config
-	JwtService  service.JWTService
+	JwtUtil     *service.JWTUtil
 }
 
 func NewHandler(conf *Config) *gin.Engine {
 	r := gin.Default()
 	r.Use(Cors())
 
-	NewAuthHandler(r, conf.OauthConfig, conf.JwtService)
-	NewGuildHandler(r, conf.Discord)
+	NewAuthHandler(r, conf.OauthConfig, conf.JwtUtil)
+	NewGuildHandler(r, conf.Discord, conf.JwtUtil)
 
 	r.GET("/api/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

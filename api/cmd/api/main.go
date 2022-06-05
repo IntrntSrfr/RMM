@@ -44,9 +44,9 @@ func main() {
 	}
 	disc.Open()
 
-	jwtService := service.NewJWTUtil([]byte(config.JWTKey))
+	jwtUtil := service.NewJWTUtil([]byte(config.JWTKey))
 
-	conf := &handler.Config{Discord: disc, OauthConfig: oauthConfig, JwtService: jwtService}
+	conf := &handler.Config{Discord: disc, OauthConfig: oauthConfig, JwtUtil: jwtUtil}
 
 	r := handler.NewHandler(conf)
 	r.Run(":4444")

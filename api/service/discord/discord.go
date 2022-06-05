@@ -36,9 +36,10 @@ func NewDiscordService(token string) (*DiscordService, error) {
 		s.ShardCount = shardCount
 		s.ShardID = i
 		s.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAllWithoutPrivileged | discordgo.IntentsGuildMembers | discordgo.IntentMessageContent)
-
-		s.AddHandler(d.memberAdd)
-		s.AddHandler(d.memberRemove)
+		/*
+			s.AddHandler(d.memberAdd)
+			s.AddHandler(d.memberRemove)
+		*/
 		s.AddHandler(d.guildCreate)
 		s.AddHandler(d.ready)
 		s.AddHandler(memberChunk)

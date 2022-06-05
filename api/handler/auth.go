@@ -15,10 +15,10 @@ import (
 type AuthHandler struct {
 	r           *gin.Engine
 	oauthConfig *oauth2.Config
-	j           service.JWTService
+	jwtUtil     *service.JWTUtil
 }
 
-func NewAuthHandler(r *gin.Engine, o *oauth2.Config, j service.JWTService) {
+func NewAuthHandler(r *gin.Engine, o *oauth2.Config, j *service.JWTUtil) {
 	h := &AuthHandler{r, o, j}
 
 	g := h.r.Group("/api/auth")
@@ -47,7 +47,6 @@ func (h *AuthHandler) callback() gin.HandlerFunc {
 		}
 
 		oc, _ := discordgo.New("Bearer " + token.AccessToken)
-
 		var u *discordgo.User
 		res, err := oc.Request("GET", discordgo.EndpointUsers+"@me", nil)
 		if err != nil {
@@ -62,7 +61,7 @@ func (h *AuthHandler) callback() gin.HandlerFunc {
 			return
 		}
 
-		jwtToken, err := h.j.GenerateToken(u.ID, token.Expiry, token.AccessToken, token.RefreshToken)
+		jwtToken, err := h.jwtUtil.GenerateToken(u.ID, token.Expiry, token.AccessToken, token.RefreshToken)
 		if err != nil {
 			fmt.Println(err)
 			c.JSON(http.StatusInternalServerError, ErrorResponse{CodeError, "Something went wrong"})
