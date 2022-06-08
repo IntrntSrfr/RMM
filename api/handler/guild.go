@@ -3,9 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/intrntsrfr/rmm-api/service"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/intrntsrfr/rmm-api/service/discord"
@@ -20,18 +21,15 @@ type GuildHandler struct {
 func NewGuildHandler(r *gin.Engine, d *discord.DiscordService, j *service.JWTUtil) {
 	h := &GuildHandler{r, d, j}
 	g := h.r.Group("/api/guilds")
-	g.GET("/", j.JWT(), h.getGuilds())
+	g.GET("/", j.IsAuthorized(), h.getGuilds())
 	g.GET("/:guildID", h.getGuild())
 	g.GET("/:guildID/members", h.getGuildMembers())
 }
 
 func (h *GuildHandler) getGuilds() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("guild start")
 		claims := c.MustGet("claims").(*service.Claims)
-		fmt.Println("claims")
 		oc, _ := discordgo.New("Bearer " + claims.Token)
-		fmt.Println("new token state")
 		res, err := oc.Request("GET", discordgo.EndpointUsers+"@me/guilds", nil)
 		if err != nil {
 			fmt.Println(err)

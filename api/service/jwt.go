@@ -2,11 +2,12 @@ package service
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type JWTService interface {
@@ -48,40 +49,28 @@ func (j *JWTUtil) GenerateToken(id string, expiry time.Time, token string, refre
 	return tkn.SignedString(j.key)
 }
 
-func (j *JWTUtil) ValidateToken(tokenString string) (*jwt.Token, *Claims, error) {
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return j.key, nil
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-	return token, claims, nil
-}
-
-func (j *JWTUtil) JWT() gin.HandlerFunc {
+func (j *JWTUtil) IsAuthorized() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := c.GetHeader("Authorization")
-		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-			fmt.Println("no token")
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+		auth := c.GetHeader("Authorization")
+		if auth == "" || !strings.HasPrefix(strings.ToLower(auth), "bearer") {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 			return
 		}
-
-		// remove "Bearer "
-		tokenString = tokenString[7:]
-
-		token, claims, err := j.ValidateToken(tokenString)
+		tokenString := strings.TrimPrefix(auth, "Bearer ")
+		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
+			return j.key, nil
+		})
 		if err != nil {
 			fmt.Println(err)
-			fmt.Println("token not valid")
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "mangled token"})
+			return
+		}
+		if !token.Valid {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "invalid token"})
 			return
 		}
 
-		fmt.Println("setting token")
-		c.Set("token", token)
-		c.Set("claims", claims)
+		c.Set("claims", token.Claims)
 		c.Next()
 	}
 }
