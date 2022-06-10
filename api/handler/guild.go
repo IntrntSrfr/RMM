@@ -21,9 +21,11 @@ type GuildHandler struct {
 func NewGuildHandler(r *gin.Engine, d *discord.DiscordService, j *service.JWTUtil) {
 	h := &GuildHandler{r, d, j}
 	g := h.r.Group("/api/guilds")
-	g.GET("/", j.IsAuthorized(), h.getGuilds())
-	g.GET("/:guildID", h.getGuild())
-	g.GET("/:guildID/members", h.getGuildMembers())
+	{
+		g.GET("/", j.IsAuthorized(), h.getGuilds())
+		g.GET("/:guildID", h.getGuild())
+		g.GET("/:guildID/members", h.getGuildMembers())
+	}
 }
 
 func (h *GuildHandler) getGuilds() gin.HandlerFunc {

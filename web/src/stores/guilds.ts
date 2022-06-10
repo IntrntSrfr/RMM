@@ -35,7 +35,7 @@ export const useGuildStore = defineStore("guild", {
         if (!token) {
           return;
         }
-        const res = await http.get<Guild[]>("/api/guilds", {
+        const res = await http.get<Guild[]>("/api/guilds/", {
           headers: { Authorization: "Bearer " + token },
         });
         this.guilds = res.data;

@@ -35,17 +35,17 @@ type Config struct {
 }
 
 func NewHandler(conf *Config) *Handler {
-	r := gin.Default()
-	r.Use(Cors())
+	h := &Handler{gin.Default()}
+	h.e.Use(Cors())
 
-	NewAuthHandler(r, conf.OauthConfig, conf.JwtUtil)
-	NewGuildHandler(r, conf.Discord, conf.JwtUtil)
+	NewAuthHandler(h.e, conf.OauthConfig, conf.JwtUtil)
+	NewGuildHandler(h.e, conf.Discord, conf.JwtUtil)
 
-	r.GET("/api/health", func(c *gin.Context) {
+	h.e.GET("/api/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	return &Handler{r}
+	return h
 }
 
 func (h *Handler) Run(address string) error {

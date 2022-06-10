@@ -23,13 +23,11 @@ const router = createRouter({
       path: "/dashboard",
       name: "dashboard",
       component: DashboardView,
-      meta: { requiresAuth: true },
     },
     {
       path: "/guilds/:guildID",
       name: "guild",
       component: GuildView,
-      meta: { requiresAuth: true },
     },
   ],
   scrollBehavior(_to, _from, savedPosition) {

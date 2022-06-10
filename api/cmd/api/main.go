@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/intrntsrfr/rmm-api/service"
 	"io/ioutil"
+
+	"github.com/intrntsrfr/rmm-api/service"
 
 	"github.com/intrntsrfr/rmm-api/service/discord"
 
