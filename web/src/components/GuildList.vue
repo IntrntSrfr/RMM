@@ -15,6 +15,7 @@
 import { defineComponent } from "vue";
 import GuildListItem from "./GuildListItem.vue";
 import { useGuildStore } from "@/stores/guilds";
+import type { Guild } from "@/stores/guilds";
 
 export default defineComponent({
   name: "GuildList",
@@ -24,7 +25,7 @@ export default defineComponent({
     return { guildStore };
   },
   computed: {
-    guilds() {
+    guilds(): Guild[] {
       return this.guildStore.guilds;
     },
   },

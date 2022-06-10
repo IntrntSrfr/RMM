@@ -1,43 +1,27 @@
 <template>
   <div class="options">
-    <AppButton text="Select all" @click="markAll" />
-    <AppButton text="Select none" @click="markNone" />
-    <AppButton text="Ban selected" @click="banSelected" />
+    <div class="grp">
+      <AppButton text="Select all" @click="markAll" />
+      <AppButton text="Select none" @click="markNone" />
+    </div>
+    <div class="grp">
+      <AppButton text="Ban selected" variant="danger" @click="banSelected" />
+    </div>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>
-          <input
-            type="checkbox"
-            :checked="selectedMembers.length === members.length"
-            :indeterminate="
-              selectedMembers.length &&
-              selectedMembers.length !== members.length
-            "
-            @click="selectedMembers.length ? markAll() : markNone()"
-          />
-        </th>
-        <th>#</th>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Joined</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(m, i) in guildMembers" :key="i">
-        <td>
-          <input type="checkbox" v-model="m.checked" />
-        </td>
-        <td>{{ i }}</td>
-        <td>{{ m.member.user.id }}</td>
-        <td>
-          {{ `${m.member.user.username}#${m.member.user.discriminator}` }}
-        </td>
-        <td>{{ timeAgo.format(m.joined) }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="member-list">
+    <div
+      class="member"
+      :class="{ selected: m.checked }"
+      v-for="(m, i) in members"
+      :key="i"
+      @click="mark(m)"
+    >
+      <div class="name">
+        {{ `${m.member.user.username}#${m.member.user.discriminator}` }}
+      </div>
+      <div class="joined">{{ timeAgo.format(m.joined) }}</div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -45,7 +29,6 @@ import { defineComponent } from "vue";
 import type { Member } from "@/stores/user";
 import AppButton from "@/components/AppButton.vue";
 import TimeAgo from "javascript-time-ago";
-import http from "@/http";
 import { useGuildStore } from "@/stores/guilds";
 
 type TableMember = {
@@ -91,15 +74,6 @@ export default defineComponent({
         });
     },
   },
-  async created() {
-    const guildID = this.$route.params.guildID;
-    if (!guildID) {
-      return;
-    }
-
-    await this.guildStore.fetchGuildMembers(guildID.toString());
-  },
-
   methods: {
     markAll() {
       this.members.forEach((m: TableMember) => (m.checked = true));
@@ -107,7 +81,13 @@ export default defineComponent({
     markNone(): void {
       this.members.forEach((m: TableMember) => (m.checked = false));
     },
+    mark(tm: TableMember){
+      tm.checked = !tm.checked;
+    },
     banSelected() {
+      if (!this.selectedMembers) {
+        return;
+      }
       const ans = confirm("Are you SURE you want to ban ALL selected users?");
       if (!ans) {
         return;
@@ -117,49 +97,63 @@ export default defineComponent({
       console.log(this.selectedMembers.map((m) => m.member.user.id));
     },
   },
+  mounted(){
+    const guildID = this.$route.params.guildID;
+    const g = this.guildStore.getGuildByID(guildID.toString());
+    console.log(guildID, g);
+    
+    
+    if (!g || !g.members) {
+      return [];
+    }
+
+    const weed = g.members
+      .map((m: Member) => {
+        return {
+          member: m,
+          checked: false,
+          joined: new Date(m.joined_at),
+        } as TableMember;
+      })
+      .sort((a: TableMember, b: TableMember) => {
+        return b.joined.getTime() - a.joined.getTime();
+      });
+
+    console.log(weed);
+  },
 });
 </script>
 
 <style scoped>
 .options {
   display: flex;
+  justify-content: space-between;
   gap: 1em;
 }
 
-table {
-  table-layout: fixed;
+.grp{
+  display:flex;
+  gap:1em;
+}
+
+.member-list {
+  display:flex;
+  flex-direction:column;
   width: 100%;
-  border-collapse: collapse;
-  border: 1px solid #a0a0a0;
+  gap: 0.5em;
 }
 
-thead {
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
+.member {
+
 }
 
-thead th:nth-child(1) {
-  width: 5%;
+.name {
+  font-size: 1rem;
+  color: rgb(175, 175, 175);
+}
+.joined {
+  font-size: 0.75rem;
+  color: #666;
 }
 
-thead th:nth-child(2) {
-  width: 5%;
-}
-
-thead th:nth-child(3) {
-  width: 20%;
-}
-
-thead th:nth-child(4) {
-  width: 40%;
-}
-
-thead th:nth-child(5) {
-  width: 20%;
-}
-
-th,
-td {
-  padding: 0.5em;
-}
 </style>

@@ -1,7 +1,9 @@
 <template>
-  <router-link to="/dashboard">&lt;- Dashboard</router-link>
-  <h1 v-if="currentGuild">{{ currentGuild.name }}</h1>
-  <GuildMembers />
+  <div class="guild">
+    <router-link to="/dashboard">&lt;- Servers</router-link>
+    <h1 v-if="currentGuild">{{ currentGuild.name }}</h1>
+    <GuildMembers />
+  </div>
 </template>
 
 <script lang="ts">

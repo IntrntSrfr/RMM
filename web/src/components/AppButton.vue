@@ -1,5 +1,8 @@
 <template>
-  <div class="btn" :class="{ outlined: variant === 'outlined' }">
+  <div
+    class="btn"
+    :class="{ outlined: variant === 'outlined', danger: variant === 'danger' }"
+  >
     {{ text }}
   </div>
 </template>
@@ -59,5 +62,14 @@ export default defineComponent({
 
 .outlined:hover {
   background-color: var(--border-hover-color);
+}
+
+.danger {
+  background-color: rgb(232, 29, 29);
+}
+
+.danger:hover,
+.danger:focus {
+  background-color: rgb(207, 25, 25);
 }
 </style>

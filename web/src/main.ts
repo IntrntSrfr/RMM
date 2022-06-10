@@ -7,8 +7,13 @@ import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 TimeAgo.addLocale(en);
 
-const app = createApp(App);
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { fas } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+library.add(fas);
 
+const app = createApp(App);
+app.component("fa-icon", FontAwesomeIcon);
 app.use(router);
 app.use(createPinia());
 

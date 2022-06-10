@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
-    <h1>Dashboard</h1>
+    <h1><fa-icon icon="bars" /> Servers</h1>
     <guild-list />
   </div>
 </template>
@@ -15,4 +15,12 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+h1 {
+  margin-bottom: 0.5em;
+}
+
+h1 svg {
+  margin-right: 0.5em;
+}
+</style>
