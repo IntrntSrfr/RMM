@@ -32,7 +32,9 @@ export default defineComponent({
   computed: {
     iconUrl(): string {
       if (!this.icon) {
-        return `https://cdn.discordapp.com/embed/avatars/${ parseInt(this.id) % 5 }.png`;
+        return `https://cdn.discordapp.com/embed/avatars/${
+          parseInt(this.id) % 5
+        }.png`;
       }
       return this.icon.startsWith("a_")
         ? `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.gif`

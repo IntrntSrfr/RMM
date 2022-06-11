@@ -22,7 +22,9 @@ export default defineComponent({
   computed: {
     guildIcon(): string {
       if (!this.icon) {
-        return `https://cdn.discordapp.com/embed/avatars/${ parseInt(this.id) % 5 }.png`;
+        return `https://cdn.discordapp.com/embed/avatars/${
+          parseInt(this.id) % 5
+        }.png`;
       }
       return this.icon.startsWith("a_")
         ? `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.gif`
