@@ -1,25 +1,27 @@
 <template>
-  <div class="options">
-    <div class="grp">
-      <AppButton text="Select all" @click="markAll" />
-      <AppButton text="Select none" @click="markNone" />
-    </div>
-    <div class="grp">
-      <AppButton text="Ban selected" variant="danger" @click="banSelected" />
-    </div>
-  </div>
-  <div class="member-list">
-    <div
-      class="member"
-      :class="{ selected: m.checked }"
-      v-for="(m, i) in members"
-      :key="i"
-      @click="mark(m)"
-    >
-      <div class="name">
-        {{ `${m.member.user.username}#${m.member.user.discriminator}` }}
+  <div class="member-wrapper">
+    <div class="options">
+      <div class="grp">
+        <AppButton text="Select all" @click="markAll" />
+        <AppButton text="Select none" @click="markNone" />
       </div>
-      <div class="joined">{{ timeAgo.format(m.joined) }}</div>
+      <div class="grp">
+        <AppButton text="Ban selected" variant="danger" @click="banSelected" />
+      </div>
+    </div>
+    <div class="member-list">
+      <div
+        class="member"
+        :class="{ selected: m.checked }"
+        v-for="(m, i) in members"
+        :key="i"
+        @click="mark(m)"
+      >
+        <div class="name">
+          {{ `${m.member.user.username}#${m.member.user.discriminator}` }}
+        </div>
+        <div class="joined">{{ timeAgo.format(m.joined) }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -129,6 +131,8 @@ export default defineComponent({
   display: flex;
   justify-content: space-between;
   gap: 1em;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #666;
 }
 
 .grp{
@@ -155,5 +159,4 @@ export default defineComponent({
   font-size: 0.75rem;
   color: #666;
 }
-
 </style>

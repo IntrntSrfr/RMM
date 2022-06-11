@@ -1,8 +1,13 @@
 <template>
   <div class="guild">
-    <router-link to="/dashboard">&lt;- Servers</router-link>
-    <h1 v-if="currentGuild">{{ currentGuild.name }}</h1>
-    <GuildMembers />
+    <div class="header">
+      <router-link to="/dashboard"><fa-icon icon="angle-left" /></router-link>
+      <div v-if="currentGuild" class="name">{{ currentGuild.name }}</div>
+    </div>
+    <div v-if="currentGuild" class="content">
+      <h3>New members</h3>
+      <GuildMembers />
+    </div>
   </div>
 </template>
 
@@ -37,4 +42,24 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2em;
+}
+
+.header a {
+  padding: 1em;
+  margin-right: 1em;
+}
+
+.name {
+  font-size: 1.5rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+h3 {
+  margin-bottom: 0.5em;
+}
+</style>
