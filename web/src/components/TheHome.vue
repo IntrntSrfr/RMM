@@ -12,6 +12,7 @@
     >
       Sign in with Discord
     </a>
+    <p>© {{ new Date().getFullYear() }} IntrntSrfr, All rights reserved</p>
   </div>
 </template>
 
@@ -26,12 +27,9 @@ export default defineComponent({
     return { userStore };
   },
   computed: {
-    loggedIn() {
+    loggedIn(): boolean {
       return this.userStore.loggedIn;
     },
-  },
-  created() {
-    console.log(this.userStore.loggedIn);
   },
 });
 </script>
@@ -49,6 +47,14 @@ h1 {
 
 h2 {
   margin-top: 1em;
+}
+
+p {
+  text-align: center;
+  position: fixed;
+  bottom: 1em;
+  left: 0;
+  width: 100%;
 }
 
 #home .btn {
