@@ -49,8 +49,15 @@ export default defineComponent({
 }
 
 .header a {
+  display: flex;
+  color: #fff;
   padding: 1em;
   margin-right: 1em;
+  transition: 0.2s;
+}
+
+.header a:hover {
+  color: #aaa;
 }
 
 .name {
@@ -58,7 +65,13 @@ export default defineComponent({
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
 h3 {
   margin-bottom: 0.5em;
+}
+
+a svg {
+  height: 24px;
+  width: 24px;
 }
 </style>

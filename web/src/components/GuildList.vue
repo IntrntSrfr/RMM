@@ -6,7 +6,7 @@
       :to="{ name: 'guild', params: { guildID: guild.id } }"
       :key="i"
     >
-      <GuildListItem :name="guild.name" :icon="guild.icon" />
+      <GuildListItem :id="guild.id" :name="guild.name" :icon="guild.icon" />
     </router-link>
   </div>
 </template>

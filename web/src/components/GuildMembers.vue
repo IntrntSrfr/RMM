@@ -1,5 +1,6 @@
 <template>
   <div class="member-wrapper">
+    <p class="counter">{{ selectedMembers.length }} selected</p>
     <div class="options">
       <div class="grp">
         <AppButton text="Select all" @click="markAll" />
@@ -15,7 +16,9 @@
         :key="i"
         @click="mark(m)"
         :checked="m.checked"
+        :id="m.member.user.id"
         :username="`${m.member.user.username}#${m.member.user.discriminator}`"
+        :icon="m.member.user.avatar"
         :joined="m.joined"
       />
     </div>
@@ -59,7 +62,7 @@ export default defineComponent({
     markNone(): void {
       this.members.forEach((m: TableMember) => (m.checked = false));
     },
-    mark(tm: TableMember){
+    mark(tm: TableMember) {
       tm.checked = !tm.checked;
     },
     banSelected() {
@@ -71,14 +74,13 @@ export default defineComponent({
         return;
       }
 
-      console.log(this.selectedMembers);
       console.log(this.selectedMembers.map((m) => m.member.user.id).join(" "));
     },
   },
   async created() {
     const guildID = this.$route.params.guildID;
-    await this.guildStore.fetchGuildMembers(guildID.toString());
     const g = this.guildStore.getGuildByID(guildID.toString());
+    await this.guildStore.fetchGuildMembers(guildID.toString());
 
     if (!g || !g.members) {
       return;
@@ -100,6 +102,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.counter {
+  margin-bottom: 0.5em;
+}
+
 .options {
   display: flex;
   justify-content: space-between;
@@ -109,8 +115,8 @@ export default defineComponent({
 }
 
 .grp {
-  display:flex;
-  gap:1em;
+  display: flex;
+  gap: 1em;
 }
 
 .member-list {
@@ -120,20 +126,7 @@ export default defineComponent({
   width: 100%;
 }
 
-.member-list .member:first-child {
-  border-radius: 10px 10px 0 0;
-}
-
-.member-list .member:last-child {
-  border-radius: 0 0 10px 10px;
-}
-
-.member-list .member:only-child {
-  border-radius: 10px;
-}
-
 .member + .member {
   border-top: 1px solid dodgerblue;
 }
-
 </style>

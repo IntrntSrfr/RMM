@@ -1,9 +1,14 @@
 <template>
   <div class="member" :class="{ selected: checked }">
-    <div class="name">
-      {{ username }}
+    <div class="icon">
+      <img :src="iconUrl" alt="avatar" class="icon-inner" />
     </div>
-    <div class="joined">{{ timeAgo.format(joined) }}</div>
+    <div class="body">
+      <div class="name">
+        {{ username }}
+      </div>
+      <div class="joined">{{ timeAgo.format(joined) }}</div>
+    </div>
   </div>
 </template>
 
@@ -19,15 +24,28 @@ export default defineComponent({
   },
   props: {
     checked: Boolean,
+    id: { type: String, required: true },
     username: String,
+    icon: String,
     joined: { type: Date, required: true },
+  },
+  computed: {
+    iconUrl(): string {
+      if (!this.icon) {
+        return `https://cdn.discordapp.com/embed/avatars/${ parseInt(this.id) % 5 }.png`;
+      }
+      return this.icon.startsWith("a_")
+        ? `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.gif`
+        : `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.png`;
+    },
   },
 });
 </script>
 
 <style scoped>
-
 .member {
+  display: flex;
+  align-items: center;
   cursor: pointer;
   padding: 0.75em;
   transition: 0.1s;
@@ -38,15 +56,30 @@ export default defineComponent({
 }
 
 .member.selected {
-  background-color: rgba(30, 143, 255, 0.2);
+  border-left: 5px solid rgba(30, 143, 255, 0.2);
+}
+
+.icon {
+  height: 36px;
+  width: 36px;
+}
+
+.icon-inner {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+}
+
+.body {
+  margin-left: 0.5em;
 }
 
 .name {
   font-size: 1rem;
-  color: rgb(175, 175, 175);
+  color: rgb(227, 227, 227);
 }
 .joined {
   font-size: 0.75rem;
-  color: #666;
+  color: rgb(174, 174, 174);
 }
 </style>
