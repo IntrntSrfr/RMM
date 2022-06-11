@@ -33,11 +33,10 @@ export default defineComponent({
     },
   },
   async created() {
-    const guildID = this.$route.params.guildID;
+    //const guildID = this.$route.params.guildID;
     if (!this.currentGuild) {
       await this.guildStore.fetchGuilds();
     }
-    await this.guildStore.fetchGuildMembers(guildID.toString());
   },
 });
 </script>
