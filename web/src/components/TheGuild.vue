@@ -45,7 +45,7 @@ export default defineComponent({
 .header {
   display: flex;
   align-items: center;
-  margin-bottom: 2em;
+  margin-bottom: 1em;
 }
 
 .header a {

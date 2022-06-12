@@ -39,6 +39,11 @@ export default defineComponent({
   display: flex;
   align-items: center;
   padding: 0.5em;
+  transition: 0.1s;
+}
+
+.guild:hover {
+  background-color: rgba(30, 143, 255, 0.1);
 }
 
 .icon {

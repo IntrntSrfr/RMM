@@ -29,6 +29,9 @@ export const useGuildStore = defineStore("guild", {
     },
   },
   actions: {
+    clear() {
+      this.guilds = [];
+    },
     async fetchGuilds() {
       const token = localStorage.getItem("token");
       try {

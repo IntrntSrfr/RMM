@@ -23,9 +23,10 @@ export default defineComponent({
       await this.userStore.oauth(code.toString());
       await this.userStore.fetchUser();
     } catch (error) {
+      this.$router.push("/");
       console.log(error);
     }
-    this.$router.push("/");
+    this.$router.push("/dashboard");
   },
 });
 </script>

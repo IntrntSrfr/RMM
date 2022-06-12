@@ -3,6 +3,7 @@ import axios from "axios";
 
 import http from "@/http";
 import jwtDecode from "jwt-decode";
+import { useGuildStore } from "./guilds";
 
 export type UserState = {
   token: JWT | null;
@@ -90,6 +91,14 @@ export const useUserStore = defineStore("user", {
       } catch (e) {
         this.token = null;
       }
+    },
+    logOut() {
+      localStorage.clear();
+      this.token = null;
+      this.loggedIn = false;
+      this.user = null;
+      const guildStore = useGuildStore();
+      guildStore.clear();
     },
   },
 });

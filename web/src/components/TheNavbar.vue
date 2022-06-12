@@ -2,14 +2,24 @@
   <div class="overlay" :class="{ active: active }" @click="hideMenu"></div>
   <div class="menu" :class="{ active: active }">
     <div class="user">
-      {{ username }}
+      <div class="icon">
+        <img :src="iconUrl" alt="avatar" class="icon-inner" />
+      </div>
+      <div class="name">
+        <div class="username">{{ username }}</div>
+        <div class="discrim">{{ discrim }}</div>
+      </div>
     </div>
     <div class="menu-grp large">
-      <div class="menu-item" @click="move('/dashboard')">Servers</div>
+      <div class="menu-item" @click="move('/dashboard')">
+        <fa-icon icon="bars" />Servers
+      </div>
     </div>
     <div class="menu-grp">
-      <div class="menu-item">Settings</div>
-      <div class="menu-item">Log out</div>
+      <!-- <div class="menu-item">Settings</div> -->
+      <div class="menu-item" @click="logout">
+        <fa-icon icon="right-from-bracket" />Log out
+      </div>
     </div>
   </div>
 </template>
@@ -28,10 +38,12 @@ export default defineComponent({
   },
   computed: {
     username(): string {
-      if (!this.userStore.user) {
-        return "";
-      }
-      return this.userStore.user.username;
+      const user = this.userStore.user;
+      return user ? user.username : "";
+    },
+    discrim(): string {
+      const user = this.userStore.user;
+      return user ? user.discriminator : "0000";
     },
     loggedIn(): boolean {
       return this.userStore.loggedIn;
@@ -39,14 +51,37 @@ export default defineComponent({
     active(): boolean {
       return this.navStore.active;
     },
+    icon(): string {
+      const user = this.userStore.user;
+      return user ? user.avatar : "";
+    },
+    userId(): string {
+      const user = this.userStore.user;
+      return user ? user.id : "";
+    },
+    iconUrl(): string {
+      if (!this.icon) {
+        return `https://cdn.discordapp.com/embed/avatars/${
+          parseInt(this.userId) % 5
+        }.png`;
+      }
+      return this.icon.startsWith("a_")
+        ? `https://cdn.discordapp.com/avatars/${this.userId}/${this.icon}.gif`
+        : `https://cdn.discordapp.com/avatars/${this.userId}/${this.icon}.png`;
+    },
   },
   methods: {
     hideMenu() {
       this.navStore.setActive(false);
     },
     move(to: string) {
-      this.$router.push(to);
       this.hideMenu();
+      this.$router.push(to);
+    },
+    logout() {
+      this.hideMenu();
+      this.userStore.logOut();
+      this.$router.push("/");
     },
   },
 });
@@ -70,11 +105,55 @@ export default defineComponent({
 .menu {
   display: flex;
   flex-direction: column;
-  padding: 2em;
+  gap: 1em;
+  padding: 1.5em;
 }
 
 .menu-item {
+  cursor: pointer;
+  display: flex;
   font-size: 1rem;
+  padding: 0.5em;
+  border-radius: 0.5em;
+
+  transition: 0.2s;
+}
+
+.menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.menu-item svg {
+  font-size: 1.5rem;
+  margin-right: 0.5em;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #aaa;
+}
+
+.icon {
+  height: 48px;
+  width: 48px;
+}
+
+.icon-inner {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+}
+
+.name {
+  margin-left: 0.5em;
+  color: rgb(227, 227, 227);
+}
+
+.discrim {
+  font-size: 0.7rem;
+  color: rgb(174, 174, 174);
 }
 
 .large {
