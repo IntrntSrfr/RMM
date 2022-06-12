@@ -1,6 +1,9 @@
 <template>
   <div class="dashboard">
-    <h1><fa-icon icon="bars" @click="openMenu" /> Servers</h1>
+    <div class="header">
+      <fa-icon icon="bars" @click="openMenu" />
+      <div>Servers</div>
+    </div>
     <guild-list />
   </div>
 </template>
@@ -26,11 +29,20 @@ export default defineComponent({
 </script>
 
 <style scoped>
-h1 {
-  margin-bottom: 0.5em;
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1em;
 }
 
-h1 svg {
-  margin-right: 0.5em;
+.header svg {
+  height: 24px;
+  width: 24px;
+  padding: 0.5em;
+}
+
+.header div {
+  font-size: 1.5rem;
+  margin-left: 0.25em;
 }
 </style>

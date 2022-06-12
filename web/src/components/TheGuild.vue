@@ -51,8 +51,7 @@ export default defineComponent({
 .header a {
   display: flex;
   color: #fff;
-  padding: 1em;
-  margin-right: 1em;
+  padding: 0.5em;
   transition: 0.2s;
 }
 
@@ -62,6 +61,7 @@ export default defineComponent({
 
 .name {
   font-size: 1.5rem;
+  margin-left: 0.25em;
   text-overflow: ellipsis;
   overflow: hidden;
 }
