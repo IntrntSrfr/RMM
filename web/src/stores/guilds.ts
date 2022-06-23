@@ -12,15 +12,13 @@ export type Guild = {
   members?: Member[];
 };
 
-type GuildState = {
-  guilds: Guild[];
-};
-
 export const useGuildStore = defineStore("guild", {
   state: () => {
     return {
-      guilds: [],
-    } as GuildState;
+      guilds: [] as Guild[],
+      loading: true,
+      error: false,
+    };
   },
   getters: {
     getGuildByID: (state) => {
@@ -34,6 +32,7 @@ export const useGuildStore = defineStore("guild", {
     },
     async fetchGuilds() {
       const token = localStorage.getItem("token");
+      this.loading = true;
       try {
         if (!token) {
           return;
@@ -42,7 +41,9 @@ export const useGuildStore = defineStore("guild", {
           headers: { Authorization: "Bearer " + token },
         });
         this.guilds = res.data;
+        this.loading = false;
       } catch (error) {
+        this.error = true;
         console.log(error);
       }
     },

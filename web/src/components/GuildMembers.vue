@@ -10,7 +10,8 @@
         <AppButton text="Ban selected" variant="danger" @click="banSelected" />
       </div>
     </div>
-    <div class="member-list">
+    <AppLoader v-if="loadingMembers" />
+    <div v-else class="member-list">
       <GuildMembersItem
         v-for="(m, i) in members"
         :key="i"
@@ -31,6 +32,7 @@ import type { Member } from "@/stores/user";
 import AppButton from "@/components/AppButton.vue";
 import { useGuildStore } from "@/stores/guilds";
 import GuildMembersItem from "./GuildMembersItem.vue";
+import AppLoader from "./AppLoader.vue";
 
 type TableMember = {
   member: Member;
@@ -40,7 +42,7 @@ type TableMember = {
 
 export default defineComponent({
   name: "GuildMembers",
-  components: { AppButton, GuildMembersItem },
+  components: { AppButton, GuildMembersItem, AppLoader },
   setup() {
     const guildStore = useGuildStore();
     return { guildStore };
@@ -53,6 +55,14 @@ export default defineComponent({
   computed: {
     selectedMembers(): TableMember[] {
       return this.members.filter((m: TableMember) => m.checked);
+    },
+    loadingMembers(): boolean {
+      const guildID = this.$route.params.guildID;
+      const g = this.guildStore.getGuildByID(guildID.toString());
+      if (!g) {
+        return true;
+      }
+      return !g.members;
     },
   },
   methods: {

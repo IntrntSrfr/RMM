@@ -29,6 +29,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.dashboard {
+  display: flex;
+  flex-direction: column;
+}
 .header {
   display: flex;
   align-items: center;

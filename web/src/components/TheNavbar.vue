@@ -7,7 +7,7 @@
       </div>
       <div class="name">
         <div class="username">{{ username }}</div>
-        <div class="discrim">{{ discrim }}</div>
+        <div class="discrim">#{{ discrim }}</div>
       </div>
     </div>
     <div class="menu-grp large">

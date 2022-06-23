@@ -1,5 +1,6 @@
 <template>
-  <div class="guild-list">
+  <AppLoader v-if="guildsLoading" />
+  <div v-else class="guild-list">
     <router-link
       class="list-item"
       v-for="(guild, i) in guilds"
@@ -16,10 +17,11 @@ import { defineComponent } from "vue";
 import GuildListItem from "./GuildListItem.vue";
 import { useGuildStore } from "@/stores/guilds";
 import type { Guild } from "@/stores/guilds";
+import AppLoader from "./AppLoader.vue";
 
 export default defineComponent({
   name: "GuildList",
-  components: { GuildListItem },
+  components: { GuildListItem, AppLoader },
   setup() {
     const guildStore = useGuildStore();
     return { guildStore };
@@ -27,6 +29,9 @@ export default defineComponent({
   computed: {
     guilds(): Guild[] {
       return this.guildStore.guilds;
+    },
+    guildsLoading(): boolean {
+      return this.guildStore.loading;
     },
   },
   async created() {

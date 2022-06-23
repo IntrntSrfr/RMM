@@ -51,6 +51,7 @@ export default defineComponent({
   cursor: pointer;
   padding: 0.75em;
   transition: 0.1s;
+  border-color: rgba(30, 143, 255, 0.2);
 }
 
 .member:hover {
