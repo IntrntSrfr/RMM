@@ -1,10 +1,20 @@
 <template>
   <div class="member-wrapper">
-    <p class="counter">{{ selectedMembers.length }} selected</p>
-    <div class="options">
+    <div
+      class="btn scroll-top"
+      :class="{ active: showScroll }"
+      @click="scrollUp()"
+    >
+      <fa-icon icon="arrow-up" />
+    </div>
+    <p class="counter">
+      {{ selectedMembers.length }} / {{ members.length }} selected
+    </p>
+    <!-- <input type="text" v-model="search" @input="" /> -->
+    <div class="actions">
       <div class="grp">
-        <AppButton text="Select all" @click="markAll" />
         <AppButton text="Select none" @click="markNone" />
+        <AppButton text="Select all" @click="markAll" />
       </div>
       <div class="grp">
         <AppButton text="Ban selected" variant="danger" @click="banSelected" />
@@ -49,6 +59,8 @@ export default defineComponent({
   },
   data() {
     return {
+      showScroll: false,
+      search: "",
       members: [] as TableMember[],
     };
   },
@@ -86,6 +98,12 @@ export default defineComponent({
 
       console.log(this.selectedMembers.map((m) => m.member.user.id).join(" "));
     },
+    handleScroll() {
+      this.showScroll = window.scrollY > 300;
+    },
+    scrollUp(){
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
   },
   async created() {
     const guildID = this.$route.params.guildID;
@@ -108,6 +126,12 @@ export default defineComponent({
         return b.joined.getTime() - a.joined.getTime();
       });
   },
+  mounted() {
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  unmounted() {
+    window.removeEventListener("scroll", this.handleScroll);
+  },
 });
 </script>
 
@@ -116,7 +140,7 @@ export default defineComponent({
   margin-bottom: 0.5em;
 }
 
-.options {
+.actions {
   display: flex;
   justify-content: space-between;
   gap: 1em;
@@ -138,5 +162,38 @@ export default defineComponent({
 
 .member + .member {
   border-top: 1px solid dodgerblue;
+}
+
+.scroll-top {
+  cursor: pointer;
+  display: flex;
+  position: fixed;
+  bottom: -1em;
+  right: 2em;
+
+  background-color: rgb(74, 60, 92);
+
+  padding: 0.5em;
+  border-radius: 50%;
+
+  visibility: hidden;
+  opacity: 0;
+  z-index: 9999;
+  transition: 0.2s;
+}
+
+.scroll-top:hover {
+  background-color: rgb(119, 70, 184);
+}
+
+.scroll-top.active {
+  visibility: visible;
+  opacity: 1;
+  bottom: 2em;
+}
+
+.scroll-top svg {
+  height: 36px;
+  width: 36px;
 }
 </style>
