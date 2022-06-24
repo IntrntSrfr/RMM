@@ -34,11 +34,11 @@ export default defineComponent({
       if (!this.icon) {
         return `https://cdn.discordapp.com/embed/avatars/${
           parseInt(this.id) % 5
-        }.png`;
+        }.png?size=64`;
       }
       return this.icon.startsWith("a_")
-        ? `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.gif`
-        : `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.png`;
+        ? `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.gif?size=64`
+        : `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.webp?size=64`;
     },
   },
 });
