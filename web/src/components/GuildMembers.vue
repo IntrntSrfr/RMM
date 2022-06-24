@@ -1,12 +1,5 @@
 <template>
   <div class="member-wrapper">
-    <div
-      class="btn scroll-top"
-      :class="{ active: showScroll }"
-      @click="scrollUp()"
-    >
-      <fa-icon icon="arrow-up" />
-    </div>
     <p class="counter">
       {{ selectedMembers.length }} / {{ members.length }} selected
     </p>
@@ -39,8 +32,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import type { Member } from "@/stores/user";
-import AppButton from "@/components/AppButton.vue";
 import { useGuildStore } from "@/stores/guilds";
+import AppButton from "@/components/AppButton.vue";
 import GuildMembersItem from "./GuildMembersItem.vue";
 import AppLoader from "./AppLoader.vue";
 
@@ -59,7 +52,6 @@ export default defineComponent({
   },
   data() {
     return {
-      showScroll: false,
       search: "",
       members: [] as TableMember[],
     };
@@ -98,12 +90,6 @@ export default defineComponent({
 
       console.log(this.selectedMembers.map((m) => m.member.user.id).join(" "));
     },
-    handleScroll() {
-      this.showScroll = window.scrollY > 300;
-    },
-    scrollUp(){
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
   },
   async created() {
     const guildID = this.$route.params.guildID;
@@ -125,12 +111,6 @@ export default defineComponent({
       .sort((a: TableMember, b: TableMember) => {
         return b.joined.getTime() - a.joined.getTime();
       });
-  },
-  mounted() {
-    window.addEventListener("scroll", this.handleScroll);
-  },
-  unmounted() {
-    window.removeEventListener("scroll", this.handleScroll);
   },
 });
 </script>
@@ -162,38 +142,5 @@ export default defineComponent({
 
 .member + .member {
   border-top: 1px solid dodgerblue;
-}
-
-.scroll-top {
-  cursor: pointer;
-  display: flex;
-  position: fixed;
-  bottom: -1em;
-  right: 2em;
-
-  background-color: rgb(74, 60, 92);
-
-  padding: 0.5em;
-  border-radius: 50%;
-
-  visibility: hidden;
-  opacity: 0;
-  z-index: 9999;
-  transition: 0.2s;
-}
-
-.scroll-top:hover {
-  background-color: rgb(119, 70, 184);
-}
-
-.scroll-top.active {
-  visibility: visible;
-  opacity: 1;
-  bottom: 2em;
-}
-
-.scroll-top svg {
-  height: 36px;
-  width: 36px;
 }
 </style>
