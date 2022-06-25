@@ -52,6 +52,7 @@ export default defineComponent({
   padding: 0.75em;
   transition: 0.1s;
   border-color: rgba(30, 143, 255, 0.2);
+  overflow: hidden;
 }
 
 .member:hover {
@@ -77,6 +78,7 @@ export default defineComponent({
 .body {
   margin-left: 0.5em;
   overflow: hidden;
+  flex: 1 0 auto;
 }
 
 .name {
@@ -85,6 +87,7 @@ export default defineComponent({
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
 .joined {
   font-size: 0.75rem;
   color: rgb(174, 174, 174);
