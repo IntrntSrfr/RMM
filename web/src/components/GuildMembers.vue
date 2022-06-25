@@ -3,7 +3,17 @@
     <p class="counter">
       {{ selectedMembers.length }} / {{ members.length }} selected
     </p>
-    <!-- <input type="text" v-model="search" @input="" /> -->
+    <div class="inp-text">
+      <input type="text" v-model="search" />
+      <div
+        class="inp-text__option"
+        title="Use regular expressions"
+        @click="() => (useRegex = !useRegex)"
+        :class="{ checked: useRegex }"
+      >
+        .*
+      </div>
+    </div>
     <div class="actions">
       <div class="grp">
         <AppButton text="Select none" @click="markNone" />
@@ -13,10 +23,10 @@
         <AppButton text="Ban selected" variant="danger" @click="banSelected" />
       </div>
     </div>
-    <AppLoader v-if="loadingMembers" />
+    <AppLoader v-if="isLoadingMembers" />
     <div v-else class="member-list">
       <GuildMembersItem
-        v-for="(m, i) in members"
+        v-for="(m, i) in searchedMembers"
         :key="i"
         @click="mark(m)"
         :checked="m.checked"
@@ -53,6 +63,7 @@ export default defineComponent({
   data() {
     return {
       search: "",
+      useRegex: false,
       members: [] as TableMember[],
     };
   },
@@ -60,33 +71,38 @@ export default defineComponent({
     selectedMembers(): TableMember[] {
       return this.members.filter((m: TableMember) => m.checked);
     },
-    loadingMembers(): boolean {
+    searchedMembers(): TableMember[] {
+      if (!this.search) return this.members;
+      return this.members.filter((m: TableMember) =>
+        this.useRegex
+          ? m.member.user.username.match(this.search)
+          : m.member.user.username
+              .toUpperCase()
+              .includes(this.search.toUpperCase())
+      );
+    },
+    isLoadingMembers(): boolean {
       const guildID = this.$route.params.guildID;
       const g = this.guildStore.getGuildByID(guildID.toString());
-      if (!g) {
-        return true;
-      }
+      if (!g) return true;
       return !g.members;
     },
   },
   methods: {
     markAll() {
-      this.members.forEach((m: TableMember) => (m.checked = true));
+      this.searchedMembers.forEach((m: TableMember) => (m.checked = true));
     },
     markNone(): void {
-      this.members.forEach((m: TableMember) => (m.checked = false));
+      this.searchedMembers.forEach((m: TableMember) => (m.checked = false));
     },
     mark(tm: TableMember) {
       tm.checked = !tm.checked;
     },
     banSelected() {
-      if (!this.selectedMembers.length) {
-        return;
-      }
+      if (!this.selectedMembers.length) return;
+
       const ans = confirm("Are you SURE you want to ban ALL selected users?");
-      if (!ans) {
-        return;
-      }
+      if (!ans) return;
 
       console.log(this.selectedMembers.map((m) => m.member.user.id).join(" "));
     },
@@ -96,9 +112,7 @@ export default defineComponent({
     const g = this.guildStore.getGuildByID(guildID.toString());
     await this.guildStore.fetchGuildMembers(guildID.toString());
 
-    if (!g || !g.members) {
-      return;
-    }
+    if (!g || !g.members) return;
 
     this.members = g.members
       .map((m: Member) => {
@@ -116,8 +130,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.counter {
-  margin-bottom: 0.5em;
+.member-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
 }
 
 .actions {
@@ -134,7 +150,6 @@ export default defineComponent({
 }
 
 .member-list {
-  margin-top: 0.5em;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -143,4 +158,38 @@ export default defineComponent({
 .member + .member {
   border-top: 1px solid dodgerblue;
 }
+
+.inp-text {
+  display: flex;
+  align-items: center;
+  padding: 0.25em;
+
+  background-color: #191b1f;
+  border-radius: 0.25em;
+}
+.inp-text input {
+  flex-grow: 1;
+  background: transparent;
+  appearance: none;
+  border: none;
+  outline: none;
+
+  font-size: 1rem;
+  color: rgb(172, 172, 172);
+}
+.inp-text__option {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 0.25em;
+}
+.inp-text__option:hover {
+  background-color: #26292f;
+}
+.inp-text__option.checked {
+  background-color: #32373d;
+}
+
 </style>
