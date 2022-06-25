@@ -43,6 +43,7 @@ export default defineComponent({
   height: 24px;
   width: 24px;
   padding: 0.5em;
+  cursor: pointer;
 }
 
 .header div {

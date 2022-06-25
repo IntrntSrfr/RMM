@@ -7,7 +7,7 @@
       <div class="name">
         {{ username }}
       </div>
-      <div class="joined">{{ timeAgo.format(joined) }}</div>
+      <div class="joined">Joined {{ timeAgo.format(joined) }}</div>
     </div>
   </div>
 </template>
@@ -65,6 +65,7 @@ export default defineComponent({
 .icon {
   height: 36px;
   width: 36px;
+  flex-shrink: 0;
 }
 
 .icon-inner {
@@ -75,11 +76,14 @@ export default defineComponent({
 
 .body {
   margin-left: 0.5em;
+  overflow: hidden;
 }
 
 .name {
   font-size: 1rem;
   color: rgb(227, 227, 227);
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .joined {
   font-size: 0.75rem;
