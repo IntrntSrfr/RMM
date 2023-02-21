@@ -2,33 +2,32 @@
   <div>Redirecting...</div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "../stores/user";
 
-export default defineComponent({
-  name: "TheRedirect",
-  setup() {
-    const userStore = useUserStore();
-    return { userStore };
-  },
-  async created() {
-    const code = this.$route.query.code;
-    if (!code) {
-      this.$router.push("/");
-      return;
-    }
+const userStore = useUserStore();
+const router = useRouter();
+const route = useRoute();
 
-    try {
-      await this.userStore.oauth(code.toString());
-      await this.userStore.fetchUser();
-    } catch (error) {
-      this.$router.push("/");
-      console.log(error);
-    }
-    this.$router.push("/dashboard");
-  },
-});
+const created = async () => {
+  const code = route.query.code;
+  if (!code) {
+    router.push("/");
+    return;
+  }
+
+  try {
+    await userStore.oauth(code.toString());
+    await userStore.fetchUser();
+  } catch (error) {
+    router.push("/");
+    console.log(error);
+  }
+  router.push("/dashboard");
+};
+
+await created();
 </script>
 
 <style scoped></style>

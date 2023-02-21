@@ -11,34 +11,29 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
 import GuildMembers from "@/components/GuildMembers.vue";
-import { useGuildStore, type Guild } from "@/stores/guilds";
+import { useGuildStore } from "@/stores/guilds";
+import { computed } from "vue";
+import { useRoute } from "vue-router";
 
-export default defineComponent({
-  name: "TheGuild",
-  components: { GuildMembers },
-  setup() {
-    const guildStore = useGuildStore();
-    return { guildStore };
-  },
-  computed: {
-    currentGuild(): Guild | undefined {
-      const guildID = this.$route.params.guildID;
-      if (!guildID) {
-        return undefined;
-      }
-      return this.guildStore.getGuildByID(guildID.toString());
-    },
-  },
-  async created() {
-    //const guildID = this.$route.params.guildID;
-    if (!this.currentGuild) {
-      await this.guildStore.fetchGuilds();
-    }
-  },
+const guildStore = useGuildStore();
+const route = useRoute();
+
+const currentGuild = computed(() => {
+  const guildID = route.params.guildID;
+  if (!guildID) {
+    return null;
+  }
+  return guildStore.getGuildByID(guildID.toString());
 });
+
+const created = async () => {
+  if (!currentGuild.value) {
+    await guildStore.fetchGuilds();
+  }
+};
+await created();
 </script>
 
 <style scoped>

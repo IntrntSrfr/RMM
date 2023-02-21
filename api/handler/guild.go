@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/bwmarrin/discordgo"
@@ -32,30 +30,21 @@ func (h *GuildHandler) getGuilds() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := c.MustGet("claims").(*service.Claims)
 		oc, _ := discordgo.New("Bearer " + claims.Token)
-		res, err := oc.Request("GET", discordgo.EndpointUsers+"@me/guilds", nil)
+		guilds, err := oc.UserGuilds(200, "", "")
 		if err != nil {
-			fmt.Println(err)
-			c.JSON(http.StatusInternalServerError, ErrorResponse{CodeError, "Something went wrong"})
-			return
-		}
-		var gs []*discordgo.Guild
-		err = json.Unmarshal(res, &gs)
-		if err != nil {
-			fmt.Println(err)
-			c.JSON(http.StatusInternalServerError, ErrorResponse{CodeError, "Something went wrong"})
+			c.JSON(http.StatusInternalServerError, ErrorResponse{CodeError, "Could not fetch guilds"})
 			return
 		}
 
-		var mutualGs []*discordgo.Guild
-		for _, g := range gs {
+		var mutualGs []*discordgo.UserGuild
+		for _, g := range guilds {
 			_, err := h.d.Guild(g.ID)
 			if err != nil {
 				continue
 			}
-			if g.Permissions&discordgo.PermissionBanMembers == 0 {
-				continue
+			if g.Permissions&(discordgo.PermissionBanMembers+discordgo.PermissionAdministrator) != 0 {
+				mutualGs = append(mutualGs, g)
 			}
-			mutualGs = append(mutualGs, g)
 		}
 		c.JSON(http.StatusOK, mutualGs)
 	}

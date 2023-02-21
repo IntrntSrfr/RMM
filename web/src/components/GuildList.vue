@@ -10,38 +10,35 @@
       <GuildListItem :id="guild.id" :name="guild.name" :icon="guild.icon" />
     </router-link>
   </div>
+  <MessageList />
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed } from "vue";
 import GuildListItem from "./GuildListItem.vue";
 import { useGuildStore } from "@/stores/guilds";
-import type { Guild } from "@/stores/guilds";
 import AppLoader from "./AppLoader.vue";
+import MessageList from "./MessageList.vue";
 
-export default defineComponent({
-  name: "GuildList",
-  components: { GuildListItem, AppLoader },
-  setup() {
-    const guildStore = useGuildStore();
-    return { guildStore };
-  },
-  computed: {
-    guilds(): Guild[] {
-      return this.guildStore.guilds;
-    },
-    guildsLoading(): boolean {
-      return this.guildStore.loading;
-    },
-  },
-  async created() {
-    try {
-      await this.guildStore.fetchGuilds();
-    } catch (error) {
-      console.log(error);
-    }
-  },
+const guildStore = useGuildStore();
+
+const guilds = computed(() => {
+  return guildStore.guilds;
 });
+
+const guildsLoading = computed(() => {
+  return guildStore.loading;
+});
+
+const created = async () => {
+  if (guilds.value.length) return;
+  try {
+    await guildStore.fetchGuilds();
+  } catch (error) {
+    console.log(error);
+  }
+};
+await created();
 </script>
 
 <style scoped>

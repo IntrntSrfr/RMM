@@ -2,19 +2,14 @@
   <RouterView />
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { onMounted } from "vue";
 import { useUserStore } from "./stores/user";
 
-export default defineComponent({
-  setup() {
-    const userStore = useUserStore();
+const userStore = useUserStore();
 
-    return { userStore };
-  },
-  async created() {
-    await this.userStore.fetchUser();
-  },
+onMounted(async () => {
+  await userStore.fetchUser();
 });
 </script>
 

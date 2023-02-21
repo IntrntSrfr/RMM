@@ -39,8 +39,9 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 import type { Member } from "@/stores/user";
 import { useGuildStore } from "@/stores/guilds";
 import AppButton from "@/components/AppButton.vue";
@@ -53,80 +54,76 @@ type TableMember = {
   joined: Date;
 };
 
-export default defineComponent({
-  name: "GuildMembers",
-  components: { AppButton, GuildMembersItem, AppLoader },
-  setup() {
-    const guildStore = useGuildStore();
-    return { guildStore };
-  },
-  data() {
-    return {
-      search: "",
-      useRegex: false,
-      members: [] as TableMember[],
-    };
-  },
-  computed: {
-    selectedMembers(): TableMember[] {
-      return this.members.filter((m: TableMember) => m.checked);
-    },
-    searchedMembers(): TableMember[] {
-      if (!this.search) return this.members;
-      return this.members.filter((m: TableMember) =>
-        this.useRegex
-          ? m.member.user.username.match(this.search)
-          : m.member.user.username
-              .toUpperCase()
-              .includes(this.search.toUpperCase())
-      );
-    },
-    isLoadingMembers(): boolean {
-      const guildID = this.$route.params.guildID;
-      const g = this.guildStore.getGuildByID(guildID.toString());
-      if (!g) return true;
-      return !g.members;
-    },
-  },
-  methods: {
-    markAll() {
-      this.searchedMembers.forEach((m: TableMember) => (m.checked = true));
-    },
-    markNone(): void {
-      this.searchedMembers.forEach((m: TableMember) => (m.checked = false));
-    },
-    mark(tm: TableMember) {
-      tm.checked = !tm.checked;
-    },
-    banSelected() {
-      if (!this.selectedMembers.length) return;
+const guildStore = useGuildStore();
+const route = useRoute();
+const search = ref("");
+const useRegex = ref(false);
+const members = ref<TableMember[]>([]);
 
-      const ans = confirm("Are you SURE you want to ban ALL selected users?");
-      if (!ans) return;
-
-      console.log(this.selectedMembers.map((m) => m.member.user.id).join(" "));
-    },
-  },
-  async created() {
-    const guildID = this.$route.params.guildID;
-    const g = this.guildStore.getGuildByID(guildID.toString());
-    await this.guildStore.fetchGuildMembers(guildID.toString());
-
-    if (!g || !g.members) return;
-
-    this.members = g.members
-      .map((m: Member) => {
-        return {
-          member: m,
-          checked: false,
-          joined: new Date(m.joined_at),
-        } as TableMember;
-      })
-      .sort((a: TableMember, b: TableMember) => {
-        return b.joined.getTime() - a.joined.getTime();
-      });
-  },
+const selectedMembers = computed(() => {
+  return members.value.filter((m: TableMember) => m.checked);
 });
+
+const searchedMembers = computed(() => {
+  if (!search.value) return members.value;
+  return members.value.filter((m: TableMember) =>
+    useRegex.value
+      ? m.member.user.username.match(search.value)
+      : m.member.user.username
+          .toUpperCase()
+          .includes(search.value.toUpperCase())
+  );
+});
+
+const isLoadingMembers = computed(() => {
+  const guildID = route.params.guildID;
+  const g = guildStore.getGuildByID(guildID.toString());
+  if (!g) return true;
+  return !g.members;
+});
+
+const markAll = () => {
+  searchedMembers.value.forEach((m) => (m.checked = true));
+};
+
+const markNone = () => {
+  searchedMembers.value.forEach((m) => (m.checked = false));
+};
+
+const mark = (tm: TableMember) => {
+  tm.checked = !tm.checked;
+};
+
+const banSelected = () => {
+  if (!selectedMembers.value.length) return;
+
+  const ans = confirm("Are you SURE you want to ban ALL selected users?");
+  if (!ans) return;
+
+  console.log(selectedMembers.value.map((m) => m.member.user.id).join(" "));
+};
+
+const OnCreated = async () => {
+  const guildID = route.params.guildID;
+  const g = guildStore.getGuildByID(guildID.toString());
+  await guildStore.fetchGuildMembers(guildID.toString());
+
+  if (!g || !g.members) return;
+
+  members.value = g.members
+    .map((m: Member) => {
+      return {
+        member: m,
+        checked: false,
+        joined: new Date(m.joined_at),
+      } as TableMember;
+    })
+    .sort((a: TableMember, b: TableMember) => {
+      return b.joined.getTime() - a.joined.getTime();
+    });
+};
+
+OnCreated();
 </script>
 
 <style scoped>
@@ -191,5 +188,4 @@ export default defineComponent({
 .inp-text__option.checked {
   background-color: #32373d;
 }
-
 </style>

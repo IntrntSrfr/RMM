@@ -4,28 +4,18 @@
       <fa-icon icon="bars" @click="openMenu" />
       <div>Servers</div>
     </div>
-    <guild-list />
+    <GuildList />
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { useNavStore } from "@/stores/navbar";
-import { defineComponent } from "vue";
 import GuildList from "./GuildList.vue";
 
-export default defineComponent({
-  name: "TheDashboard",
-  components: { GuildList },
-  setup() {
-    const navStore = useNavStore();
-    return { navStore };
-  },
-  methods: {
-    openMenu() {
-      this.navStore.setActive(true);
-    },
-  },
-});
+const navStore = useNavStore();
+const openMenu = () => {
+  navStore.setActive(true);
+};
 </script>
 
 <style scoped>

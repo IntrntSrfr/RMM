@@ -16,21 +16,13 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed } from "vue";
 import { useUserStore } from "@/stores/user";
 
-export default defineComponent({
-  name: "TheHome",
-  setup() {
-    const userStore = useUserStore();
-    return { userStore };
-  },
-  computed: {
-    loggedIn(): boolean {
-      return this.userStore.loggedIn;
-    },
-  },
+const userStore = useUserStore();
+const loggedIn = computed(() => {
+  return userStore.loggedIn;
 });
 </script>
 

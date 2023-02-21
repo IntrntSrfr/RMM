@@ -12,35 +12,29 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed, defineProps } from "vue";
 import TimeAgo from "javascript-time-ago";
 
-export default defineComponent({
-  name: "GuildMembersItem",
-  setup() {
-    const timeAgo = new TimeAgo("en-US");
-    return { timeAgo };
-  },
-  props: {
-    checked: Boolean,
-    id: { type: String, required: true },
-    username: String,
-    icon: String,
-    joined: { type: Date, required: true },
-  },
-  computed: {
-    iconUrl(): string {
-      if (!this.icon) {
-        return `https://cdn.discordapp.com/embed/avatars/${
-          parseInt(this.id) % 5
-        }.png?size=64`;
-      }
-      return this.icon.startsWith("a_")
-        ? `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.gif?size=64`
-        : `https://cdn.discordapp.com/avatars/${this.id}/${this.icon}.webp?size=64`;
-    },
-  },
+const timeAgo = new TimeAgo("en-US");
+
+const props = defineProps<{
+  checked: boolean;
+  id: string;
+  username: string;
+  icon: string;
+  joined: Date;
+}>();
+
+const iconUrl = computed(() => {
+  if (!props.icon) {
+    return `https://cdn.discordapp.com/embed/avatars/${
+      parseInt(props.id) % 5
+    }.png?size=64`;
+  }
+  return props.icon.startsWith("a_")
+    ? `https://cdn.discordapp.com/avatars/${props.id}/${props.icon}.gif?size=64`
+    : `https://cdn.discordapp.com/avatars/${props.id}/${props.icon}.webp?size=64`;
 });
 </script>
 

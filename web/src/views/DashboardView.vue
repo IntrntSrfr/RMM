@@ -6,6 +6,8 @@ import AppScrollButton from "../components/AppScrollButton.vue";
 
 <template>
   <TheNavbar />
-  <TheDashboard />
+  <Suspense>
+    <TheDashboard />
+  </Suspense>
   <AppScrollButton />
 </template>

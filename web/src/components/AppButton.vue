@@ -7,25 +7,15 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { defineProps, withDefaults } from "vue";
 
-export default defineComponent({
-  name: "AppButton",
-  props: {
-    text: {
-      type: String,
-      required: true,
-    },
-    variant: {
-      type: String,
-      default: "outlined",
-      validator(value: string) {
-        return ["outlined", "filled", "danger"].includes(value);
-      },
-    },
-  },
-});
+export interface Props {
+  text: string;
+  variant?: string;
+}
+
+withDefaults(defineProps<Props>(), { variant: "outlined" });
 </script>
 
 <style scoped>

@@ -4,33 +4,26 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from "vue";
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref } from "vue";
 
-export default defineComponent({
-  name: "AppScrollButton",
-  setup() {
-    onMounted(() => {
-      window.addEventListener("scroll", handleScroll);
-    });
+const show = ref(false);
 
-    onUnmounted(() => {
-      window.removeEventListener("scroll", handleScroll);
-    });
-
-    const handleScroll = () => {
-      show.value = window.scrollY > 300;
-    };
-
-    const scrollUp = () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    const show = ref(false);
-
-    return { show, scrollUp };
-  },
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
 });
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
+
+const handleScroll = () => {
+  show.value = window.scrollY > 300;
+};
+
+const scrollUp = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 </script>
 
 <style scoped>

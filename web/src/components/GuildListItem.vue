@@ -9,28 +9,26 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed, defineProps, withDefaults } from "vue";
 
-export default defineComponent({
-  name: "GuildListItem",
-  props: {
-    id: { type: String, required: true },
-    name: { type: String, required: true },
-    icon: { type: String, default: "" },
-  },
-  computed: {
-    guildIcon(): string {
-      if (!this.icon) {
-        return `https://cdn.discordapp.com/embed/avatars/${
-          parseInt(this.id) % 5
-        }.png?size=128`;
-      }
-      return this.icon.startsWith("a_")
-        ? `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.gif?size=128`
-        : `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.webp?size=128`;
-    },
-  },
+export interface Props {
+  id: string;
+  name: string;
+  icon?: string; // { type: String, default: "" },
+}
+
+const props = withDefaults(defineProps<Props>(), { icon: "" });
+
+const guildIcon = computed(() => {
+  if (!props.icon) {
+    return `https://cdn.discordapp.com/embed/avatars/${
+      parseInt(props.id) % 5
+    }.png?size=128`;
+  }
+  return props.icon.startsWith("a_")
+    ? `https://cdn.discordapp.com/icons/${props.id}/${props.icon}.gif?size=128`
+    : `https://cdn.discordapp.com/icons/${props.id}/${props.icon}.webp?size=128`;
 });
 </script>
 

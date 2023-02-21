@@ -24,67 +24,69 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { useNavStore } from "@/stores/navbar";
-import { defineComponent } from "vue";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
 import { useUserStore } from "../stores/user";
 
-export default defineComponent({
-  name: "TheNavbar",
-  setup() {
-    const userStore = useUserStore();
-    const navStore = useNavStore();
-    return { userStore, navStore };
-  },
-  computed: {
-    username(): string {
-      const user = this.userStore.user;
-      return user ? user.username : "";
-    },
-    discrim(): string {
-      const user = this.userStore.user;
-      return user ? user.discriminator : "0000";
-    },
-    loggedIn(): boolean {
-      return this.userStore.loggedIn;
-    },
-    active(): boolean {
-      return this.navStore.active;
-    },
-    icon(): string {
-      const user = this.userStore.user;
-      return user ? user.avatar : "";
-    },
-    userId(): string {
-      const user = this.userStore.user;
-      return user ? user.id : "";
-    },
-    iconUrl(): string {
-      if (!this.icon) {
-        return `https://cdn.discordapp.com/embed/avatars/${
-          parseInt(this.userId) % 5
-        }.png`;
-      }
-      return this.icon.startsWith("a_")
-        ? `https://cdn.discordapp.com/avatars/${this.userId}/${this.icon}.gif`
-        : `https://cdn.discordapp.com/avatars/${this.userId}/${this.icon}.png`;
-    },
-  },
-  methods: {
-    hideMenu() {
-      this.navStore.setActive(false);
-    },
-    move(to: string) {
-      this.hideMenu();
-      this.$router.push(to);
-    },
-    logout() {
-      this.hideMenu();
-      this.userStore.logOut();
-      this.$router.push("/");
-    },
-  },
+const userStore = useUserStore();
+const navStore = useNavStore();
+const router = useRouter();
+
+const username = computed(() => {
+  const user = userStore.user;
+  return user ? user.username : "";
 });
+
+const discrim = computed(() => {
+  const user = userStore.user;
+  return user ? user.discriminator : "0000";
+});
+
+const loggedIn = computed(() => {
+  return userStore.loggedIn;
+});
+
+const active = computed(() => {
+  return navStore.active;
+});
+
+const icon = computed(() => {
+  const user = userStore.user;
+  return user ? user.avatar : "";
+});
+
+const userId = computed(() => {
+  const user = userStore.user;
+  return user ? user.id : "";
+});
+
+const iconUrl = computed(() => {
+  if (!icon.value) {
+    return `https://cdn.discordapp.com/embed/avatars/${
+      parseInt(userId.value) % 5
+    }.png`;
+  }
+  return icon.value.startsWith("a_")
+    ? `https://cdn.discordapp.com/avatars/${userId.value}/${icon.value}.gif`
+    : `https://cdn.discordapp.com/avatars/${userId.value}/${icon.value}.png`;
+});
+
+const hideMenu = () => {
+  navStore.setActive(false);
+};
+
+const move = (to: string) => {
+  hideMenu();
+  router.push(to);
+};
+
+const logout = () => {
+  hideMenu();
+  userStore.logOut();
+  router.push("/");
+};
 </script>
 
 <style scoped>

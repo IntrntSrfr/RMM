@@ -81,6 +81,8 @@ func (d *DiscordService) GuildMembers(guildID string) ([]*discordgo.Member, erro
 }*/
 
 func (d *DiscordService) GuildJoins(guildID string) ([]*discordgo.Member, error) {
+	
+	//d.s.RequestGuildMembers(guildID, "", 0, "", false)
 	g, err := d.Guild(guildID)
 	if err != nil {
 		return nil, err
@@ -110,6 +112,8 @@ func (d *DiscordService) GuildJoins(guildID string) ([]*discordgo.Member, error)
 func (d *DiscordService) ready(s *discordgo.Session, r *discordgo.Ready) {
 	fmt.Println("logged in as", r.User, r.SessionID)
 }
+
+// 375914334292934659
 
 func (d *DiscordService) guildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
 	s.RequestGuildMembers(g.ID, "", 0, "", false)
